@@ -1,6 +1,14 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
 .vscode/
 raw_data/
 config.json
+
+# Docker
+*.log
+*.pid
+
+# OS files
+.DS_store

@@ -1,0 +1,10 @@
+{
+    "api_key": "",
+    "base_url": "https://api.openweathermap.org/data/3.0/onecall",
+    "db_config": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "openweatherapi"
+    }
+}

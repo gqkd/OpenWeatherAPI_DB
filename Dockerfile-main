@@ -1,0 +1,16 @@
+# Dockerfile-main
+FROM python:3.9-slim
+
+# 1. Set working directory
+WORKDIR /app
+
+# 2. Copy and install requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 3. Copy the source code into the container
+COPY src/ src/
+COPY config/ config/
+
+# 5. Default command to run main
+CMD ["python", "src/main.py"]
