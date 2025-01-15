@@ -1,4 +1,4 @@
-from src.utils import load_last_day
+from utils import load_last_day
 
 #Milano: lat 44.494888 long 11.342616
 #Bologna: lat 45.464203 long 9.189982

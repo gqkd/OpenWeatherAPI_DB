@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import mysql.connector
 import os
 
-with open("config.json", "r") as f:
+with open("config/config.json", "r") as f:
     config = json.load(f)
 
 API_KEY = config["api_key"]
@@ -14,45 +14,45 @@ TIME_MACHINE_URL = f'{BASE_URL}/timemachine'
 RAW_DATA_DIR = "raw_data"
 
 def db_connect(DB_CONFIG):
-    #Connessione a MySQL
+    #Connect to MySQL
     try:
         db_connection = mysql.connector.connect(**DB_CONFIG)
         if db_connection.is_connected():
-            print("Connesso a MySQL Database")
+            print("Connected to MySQL Database")
         return db_connection
     except mysql.connector.Error as e:
-        print(f"Errore connessione a MySQL: {e}")
+        print(f"Connection error: {e}")
         return None
 
 def db_close_connection(db_connection):
     if db_connection.is_connected():
         db_connection.close()
-        print("Connessione a MySQL chiusa")
+        print("Connection closed")
     else:
-        print('Non connesso')
+        print('Not connected')
         
 def generate_timestamps(delta_days: int =30) -> list:
     #TODO si potrebbe adattare per fare da delta1 a delta2
-    # Data corrente
-    adesso = datetime.now(timezone.utc)
+    # Current date
+    now = datetime.now(timezone.utc)
     
-    if adesso.minute != 0 or adesso.second != 0:
-        adesso = adesso.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+    if now.minute != 0 or now.second != 0:
+        now = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
     
-    # Data un delta fa
-    delta_fa = adesso - timedelta(days=delta_days)
+    # Date delta
+    delta = now - timedelta(days=delta_days)
     timestamps = []
     
-    while delta_fa < adesso:
-        # Conversione in unix e append alla lista
-        timestamps.append(int(delta_fa.timestamp()))
-        # Scorre un'ora alla volta
-        delta_fa += timedelta(hours=1)
+    while delta < now:
+        # Conversion in unix and append to the list
+        timestamps.append(int(delta.timestamp()))
+        # One hour at the time
+        delta += timedelta(hours=1)
         
     return timestamps
 
 def get_weather_OpenWeatherAPI(lat:float, lon:float, timestamp) -> json:
-    # Params da passare alla GET
+    # Params for the GET
     params = {
         'lat': lat,
         'lon': lon,
@@ -72,10 +72,9 @@ def get_weather_OpenWeatherAPI(lat:float, lon:float, timestamp) -> json:
 
 def db_insert_one(db_connection, ID_SOURCE:str , ID_CITY:int , OBSERVATION_TS:str, TEMPERATURE:int, ID_WEATHER_TYPE:int, WIND_SPEED:int):
     try:
-        # Istanza cursore per scrittura db
         cursor = db_connection.cursor()
         
-        # Statement per l'insert
+        # Statement insert
         stmt = """
         INSERT INTO FACT_WEATHER 
         (ID_SOURCE, ID_CITY, OBSERVATION_TS, TEMPERATURE, ID_WEATHER_TYPE, WIND_SPEED)
@@ -92,7 +91,7 @@ def db_insert_one(db_connection, ID_SOURCE:str , ID_CITY:int , OBSERVATION_TS:st
 
 
 def get_city_info(db_connection, city_name: str):
-    # Fa una query a db per prendere l'id della città, lat e long
+    # Query to get the info of the city
     try:
         cursor = db_connection.cursor()
         query = "SELECT ID_CITY, LATITUDE, LONGITUDE  FROM LK_CITIES WHERE CITY_NAME = %s"
